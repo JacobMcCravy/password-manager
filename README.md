@@ -28,6 +28,7 @@ mysql --version
 
 **6. Create Environment File (.env)**
 Edit .env:
+Create encryption key in powershell: [System.BitConverter]::ToString((1..32 | ForEach-Object {Get-Random -Minimum 0 -Maximum 256}) -as [byte[]]).Replace("-", "").ToLower()
 Add your ENCRYPTION_KEY, DB_USER and DB_PASSWORD
 
 **7. Initialize the Database**
