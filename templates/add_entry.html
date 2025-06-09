@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+{% block title %}{{ 'Edit' if entry else 'Add' }} Entry{% endblock %}
+{% block content %}
+<h2>{{ 'Edit' if entry else 'Add' }} Entry</h2>
+<form method="post">
+  <label>Title: <input name="title" value="{{ entry.title if entry }}"></label><br>
+  <label>Username: <input name="username" value="{{ entry.username if entry }}"></label><br>
+  <label>Password: <input name="password" type="password" value="{{ entry.password if entry }}" data-showable></label><br>
+  <label>URL: <input name="url" value="{{ entry.url if entry }}"></label><br>
+  <label>Notes:<br><textarea name="notes">{{ entry.notes if entry }}</textarea></label><br>
+  <button type="submit">Save</button>
+</form>
+{% endblock %}

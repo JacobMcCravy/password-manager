@@ -1,0 +1,7 @@
+body { font-family: Arial, sans-serif; margin: 0; padding: 0; }
+nav { background: #333; padding: 0.5em; }
+nav a, nav button { color: white; margin-right: 1em; text-decoration: none; border: none; background: none; cursor: pointer; }
+.container { padding: 1em; }
+.flash { background: #ffdddd; padding: 0.5em; margin-bottom: 1em; }
+table { width: 100%; border-collapse: collapse; }
+th, td { border: 1px solid #ccc; padding: 0.5em; }

@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+<h2>Your Entries</h2>
+<a href="/add">+ Add New</a>
+<table>
+  <tr><th>Title</th><th>Username</th><th>Password</th><th>URL</th><th>Notes</th><th>Actions</th></tr>
+  {% for e in entries %}
+  <tr>
+    <td>{{ e.title }}</td>
+    <td>{{ e.username }}</td>
+    <td><input type="password" value="{{ e.password }}" readonly data-showable></td>
+    <td>{{ e.url }}</td>
+    <td>{{ e.notes }}</td>
+    <td>
+      <a href="/edit/{{ e.id }}">Edit</a>
+      <form action="/delete/{{ e.id }}" method="post" style="display:inline"><button>Delete</button></form>
+    </td>
+  </tr>
+  {% endfor %}
+</table>
+{% endblock %}

@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>{% block title %}Password Manager{% endblock %}</title>
+  <link rel="stylesheet" href="/static/css/style.css">
+  <script src="/static/js/script.js" defer></script>
+</head>
+<body>
+  <nav>
+    {% if current_user.is_authenticated %}
+      <a href="/dashboard">Dashboard</a>
+      <form action="/logout" method="post"><button>Logout</button></form>
+    {% else %}
+      <a href="/login">Login</a> | <a href="/register">Register</a>
+    {% endif %}
+  </nav>
+  <div class="container">
+    {% with messages = get_flashed_messages() %}
+      {% for msg in messages %}<div class="flash">{{ msg }}</div>{% endfor %}
+    {% endwith %}
+    {% block content %}{% endblock %}
+  </div>
+</body>
+</html>
