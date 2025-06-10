@@ -1,13 +1,38 @@
-{% extends 'base.html' %}
-{% block title %}{{ 'Edit' if entry else 'Add' }} Entry{% endblock %}
+{% extends "base.html" %}
+
+{% block title %}LockBox — Edit Entry{% endblock %}
+
 {% block content %}
-<h2>{{ 'Edit' if entry else 'Add' }} Entry</h2>
-<form method="post">
-  <label>Title: <input name="title" value="{{ entry.title if entry }}"></label><br>
-  <label>Username: <input name="username" value="{{ entry.username if entry }}"></label><br>
-  <label>Password: <input name="password" type="password" value="{{ entry.password if entry }}" data-showable></label><br>
-  <label>URL: <input name="url" value="{{ entry.url if entry }}"></label><br>
-  <label>Notes:<br><textarea name="notes">{{ entry.notes if entry }}</textarea></label><br>
-  <button type="submit">Save</button>
-</form>
+<div class="dashboard-container">
+  <div class="dashboard-card">
+    <!-- Logo -->
+    <img src="{{ url_for('static', filename='img/logo.png') }}"
+         alt="LockBox Logo"
+         class="logo" />
+
+    <!-- Header -->
+    <div class="dashboard-header">Edit Entry</div>
+
+    <form action="{{ url_for('edit_entry', id=entry.id) }}" method="post">
+      <label for="title">Title</label>
+      <input type="text" id="title" name="title" value="{{ entry.title }}" required>
+
+      <label for="username">Username</label>
+      <input type="text" id="username" name="username" value="{{ entry.username }}" required>
+
+      <label for="password">Password</label>
+      <input type="password" id="password" name="password" value="{{ entry.password }}" required>
+
+      <label for="url">URL</label>
+      <input type="url" id="url" name="url" value="{{ entry.url }}">
+
+      <label for="notes">Notes</label>
+      <textarea id="notes" name="notes" rows="3">{{ entry.notes }}</textarea>
+
+      <div class="actions">
+        <button type="submit">Update Entry</button>
+      </div>
+    </form>
+  </div>
+</div>
 {% endblock %}

@@ -1,10 +1,69 @@
-{% extends 'base.html' %}
-{% block title %}Register{% endblock %}
-{% block content %}
-<h2>Register</h2>
-<form method="post">
-  <label>Username: <input name="username"></label><br>
-  <label>Password: <input name="password" type="password"></label><br>
-  <button type="submit">Register</button>
-</form>
-{% endblock %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LockBox — Register</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+  <div class="register-card">
+    <img src="{{ url_for('static', filename='img/logo.png') }}" alt="LockBox Logo" class="logo">
+    <form action="/register" method="POST">
+      <label for="username">Username</label>
+      <input
+        type="text"
+        id="username"
+        name="username"
+        placeholder="Choose a username"
+        required
+      >
+
+      <label for="email">Email</label>
+      <input
+        type="email"
+        id="email"
+        name="email"
+        placeholder="Enter your email"
+        required
+      >
+
+      <label for="password">Password</label>
+      <input
+        type="password"
+        id="password"
+        name="password"
+        placeholder="Create a password"
+        required
+      >
+
+      <label for="confirm-password">Confirm Password</label>
+      <input
+        type="password"
+        id="confirm-password"
+        name="confirm_password"
+        placeholder="Confirm your password"
+        required
+      >
+      <div class="show-password" onclick="togglePassword()">
+        <input type="checkbox" id="toggle-register">
+        <span>Show Passwords</span>
+      </div>
+
+      <button type="submit">Register</button>
+      <p class="login-link">
+        Already have an account? <a href="/login">Log In</a>
+      </p>
+    </form>
+  </div>
+
+  <script>
+    function togglePassword() {
+      const pwd = document.getElementById('password');
+      const confirm = document.getElementById('confirm-password');
+      pwd.type = pwd.type === 'password' ? 'text' : 'password';
+      confirm.type = confirm.type === 'password' ? 'text' : 'password';
+    }
+  </script>
+</body>
+</html>
