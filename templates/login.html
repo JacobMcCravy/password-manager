@@ -5,18 +5,71 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>LockBox — Login</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <style>
+    .flash-container {
+      position: fixed;
+      top: 1rem;
+      right: 1rem;
+      z-index: 1100;
+      max-width: 400px;
+    }
+    
+    .flash {
+      padding: 1rem 1.5rem;
+      margin-bottom: 0.5rem;
+      border-radius: 0.5rem;
+      font-weight: 500;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+      animation: slideIn 0.3s ease-out;
+    }
+    
+    .flash.success {
+      background: #10b981;
+      color: white;
+    }
+    
+    .flash.error {
+      background: #ef4444;
+      color: white;
+    }
+    
+    .flash.info {
+      background: #3b82f6;
+      color: white;
+    }
+    
+    @keyframes slideIn {
+      from {
+        transform: translateX(100%);
+        opacity: 0;
+      }
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+  </style>
 </head>
 <body>
+  <div class="flash-container">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% for category, msg in messages %}
+        <div class="flash {{ category }}">{{ msg }}</div>
+      {% endfor %}
+    {% endwith %}
+  </div>
+  
   <div class="login-card">
     <img src="{{ url_for('static', filename='img/logo.png') }}" alt="LockBox Logo" class="logo">
     <form action="/login" method="POST">
-      <label for="username">Username</label>
+      <label for="username">Username or Email</label>
       <input
         type="text"
         id="username"
         name="username"
-        placeholder="Enter your username"
+        placeholder="Enter username or email"
         required
+        autocomplete="username email"
       >
 
       <label for="password">Password</label>
@@ -26,6 +79,7 @@
         name="password"
         placeholder="Enter your password"
         required
+        autocomplete="current-password"
       >
       <div class="show-password" onclick="togglePassword()">
         <input type="checkbox" id="toggle-login">
@@ -42,8 +96,24 @@
   <script>
     function togglePassword() {
       const pwd = document.getElementById('password');
-      pwd.type = pwd.type === 'password' ? 'text' : 'password';
+      const checkbox = document.getElementById('toggle-login');
+      pwd.type = checkbox.checked ? 'text' : 'password';
     }
+    
+    // Auto-focus on username field
+    document.getElementById('username').focus();
+    
+    // Auto-hide flash messages after 5 seconds
+    document.addEventListener('DOMContentLoaded', () => {
+      const flashes = document.querySelectorAll('.flash');
+      flashes.forEach(flash => {
+        setTimeout(() => {
+          flash.style.transition = 'opacity 0.5s';
+          flash.style.opacity = '0';
+          setTimeout(() => flash.remove(), 500);
+        }, 5000);
+      });
+    });
   </script>
 </body>
 </html>

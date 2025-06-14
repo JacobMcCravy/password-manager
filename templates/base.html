@@ -5,12 +5,72 @@
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <title>{% block title %}Password Manager{% endblock %}</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}"/>
+  <style>
+    /* Flash message styling */
+    .flash-container {
+      position: fixed;
+      top: 4rem;
+      right: 1rem;
+      z-index: 1100;
+      max-width: 400px;
+    }
+    
+    .flash {
+      padding: 1rem 1.5rem;
+      margin-bottom: 0.5rem;
+      border-radius: 0.5rem;
+      font-weight: 500;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      animation: slideIn 0.3s ease-out;
+    }
+    
+    .flash.success {
+      background: #10b981;
+      color: white;
+    }
+    
+    .flash.error {
+      background: #ef4444;
+      color: white;
+    }
+    
+    .flash.info {
+      background: #3b82f6;
+      color: white;
+    }
+    
+    .flash.warning {
+      background: #f59e0b;
+      color: white;
+    }
+    
+    @keyframes slideIn {
+      from {
+        transform: translateX(100%);
+        opacity: 0;
+      }
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+    
+
+  </style>
 </head>
 <body>
   <header class="top-nav">
     <!-- Left side: just LockBox -->
     <div class="nav-left" style="display:flex; align-items:center;">
-      <a href="{{ url_for('dashboard') }}" class="app-name">LockBox</a>
+      <a href="{{ url_for('dashboard') if current_user.is_authenticated else url_for('index') }}" 
+         class="app-name" style="display: flex; align-items: center; gap: 0.5rem; text-decoration: none;">
+        <svg width="30" height="30" viewBox="0 0 30 30">
+          <rect x="5" y="10" width="20" height="15" fill="#1e40af" rx="2"/>
+          <path d="M 7.5 10 Q 7.5 5, 15 5 Q 22.5 5, 22.5 10" fill="none" stroke="#fbbf24" stroke-width="3"/>
+          <circle cx="15" cy="17.5" r="2" fill="#fbbf24"/>
+        </svg>
+        <span style="color: var(--color-highlight); font-weight: 600; font-size: 1.2rem;">LockBox</span>
+      </a>
     </div>
 
     <!-- Right side: Logout or Login/Register -->
@@ -32,12 +92,15 @@
     </div>
   </header>
 
-  <div class="container">
-    {% with messages = get_flashed_messages() %}
-      {% for msg in messages %}
-        <div class="flash">{{ msg }}</div>
+  <div class="flash-container">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% for category, msg in messages %}
+        <div class="flash {{ category }}">{{ msg }}</div>
       {% endfor %}
     {% endwith %}
+  </div>
+
+  <div class="container">
     {% block content %}{% endblock %}
   </div>
 </body>

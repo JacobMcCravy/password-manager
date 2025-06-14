@@ -588,3 +588,18 @@ textarea {
 .edit-btn:hover {
   background: var(--color-accent);
 }
+.copy-btn {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--color-highlight);
+  font-size: 0.8rem;
+  padding: 0.25rem 0.5rem;
+  border: 2px solid var(--color-highlight);
+  border-radius: 9999px;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+
+.copy-btn:hover {
+  background: var(--color-highlight);
+  color: #0F172A;
+}

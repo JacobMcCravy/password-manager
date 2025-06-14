@@ -3,66 +3,341 @@
 {% block title %}LockBox — Dashboard{% endblock %}
 
 {% block content %}
-<div class="dashboard-container">
-  <div class="dashboard-card">
-    <!-- Logo -->
-    <img
-      src="{{ url_for('static', filename='img/logo.png') }}"
-      alt="LockBox Logo"
-      class="logo"
-    />
+<style>
+  .dashboard-wrapper {
+    display: flex;
+    gap: 1rem;
+    height: calc(100vh - 5rem);
+    padding: 2rem;
+  }
+  
+  .folders-sidebar {
+    width: 250px;
+    background: var(--color-card-bg);
+    border-radius: 1rem;
+    padding: 1.5rem;
+    overflow-y: auto;
+    flex-shrink: 0;
+  }
+  
+  .folder-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.75rem 1rem;
+    margin: 0.25rem 0;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-decoration: none;
+    color: var(--color-text);
+  }
+  
+  .folder-item:hover {
+    background: rgba(255, 255, 255, 0.1);
+  }
+  
+  .folder-item.active {
+    background: rgba(251, 191, 36, 0.2);
+    border-left: 3px solid var(--color-highlight);
+  }
+  
+  .folder-icon {
+    width: 20px;
+    height: 20px;
+    margin-right: 0.75rem;
+    flex-shrink: 0;
+  }
+  
+  .folder-name {
+    flex: 1;
+    font-weight: 500;
+  }
+  
+  .folder-count {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 0.25rem 0.5rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+  }
+  
+  .folder-header {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #64748b;
+    margin: 1.5rem 0 0.5rem 0;
+    padding: 0 1rem;
+  }
+  
+  .main-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+  }
+  
+  .folder-tag {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+    background: var(--folder-color, #3b82f6);
+    color: white;
+  }
+  
+  .add-folder-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    padding: 0.5rem;
+    margin-top: 1rem;
+    border: 2px dashed rgba(255, 255, 255, 0.2);
+    border-radius: 0.5rem;
+    background: transparent;
+    color: var(--color-text);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  
+  .add-folder-btn:hover {
+    border-color: var(--color-highlight);
+    background: rgba(251, 191, 36, 0.1);
+  }
+</style>
 
-    <!-- Header -->
-    <div class="dashboard-header">Dashboard</div>
+<div class="dashboard-wrapper">
+  <!-- Folders Sidebar -->
+  <div class="folders-sidebar">
+    <img src="{{ url_for('static', filename='img/logo.png') }}"
+         alt="LockBox Logo"
+         class="logo" style="width: 80px; margin: 0 auto 1.5rem; display: block;" />
+    
+    <h3 style="font-size: 1.25rem; margin-bottom: 1rem;">Folders</h3>
+    
+    <!-- All Entries -->
+    <a href="{{ url_for('dashboard') }}" 
+       class="folder-item {% if selected_folder_id is none %}active{% endif %}">
+      <div style="display: flex; align-items: center;">
+        <svg class="folder-icon" fill="currentColor" viewBox="0 0 20 20">
+          <path d="M2 6a2 2 0 012-2h5l2 2h5a2 2 0 012 2v6a2 2 0 01-2 2H4a2 2 0 01-2-2V6z"></path>
+        </svg>
+        <span class="folder-name">All Entries</span>
+      </div>
+      <span class="folder-count">{{ entries|length }}</span>
+    </a>
+    
+    {% if unorganized_count > 0 %}
+    <!-- Unorganized -->
+    <a href="{{ url_for('dashboard', folder=0) }}" 
+       class="folder-item {% if selected_folder_id == 0 %}active{% endif %}">
+      <div style="display: flex; align-items: center;">
+        <svg class="folder-icon" fill="#94a3b8" viewBox="0 0 20 20">
+          <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"></path>
+          <path fill-rule="evenodd" d="M4 5a2 2 0 012-2 1 1 0 000 2H4v10h12V5h-2a1 1 0 100-2 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5z"></path>
+        </svg>
+        <span class="folder-name">Unorganized</span>
+      </div>
+      <span class="folder-count">{{ unorganized_count }}</span>
+    </a>
+    {% endif %}
+    
+    <!-- User Folders -->
+    {% if folders %}
+    <div class="folder-header">My Folders</div>
+    {% for folder in folders %}
+    <a href="{{ url_for('dashboard', folder=folder.id) }}" 
+       class="folder-item {% if selected_folder_id == folder.id %}active{% endif %}">
+      <div style="display: flex; align-items: center;">
+        <div class="folder-icon" style="background: {{ folder.color }}; border-radius: 4px;"></div>
+        <span class="folder-name">{{ folder.name }}</span>
+      </div>
+      <span class="folder-count">{{ folder.entry_count }}</span>
+    </a>
+    {% endfor %}
+    {% endif %}
+    
+    <button class="add-folder-btn" onclick="createFolder()">
+      + New Folder
+    </button>
+  </div>
 
-    <!-- Scrollable Entries -->
-    <div class="scrollable-entries">
-      {% if entries %}
-        <table class="entry-table">
-          <thead>
-            <tr>
-              <th>Title</th>
-              <th>Username</th>
-              <th>Password</th>
-              <th>URL</th>
-              <th>Notes</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for e in entries %}
-            <tr>
-              <td>{{ e.title }}</td>
-              <td>{{ e.username }}</td>
-              <td><code>{{ e.password }}</code></td>
-              <td>
-                {% if e.url %}
-                  <a href="{{ e.url }}" target="_blank">{{ e.url }}</a>
-                {% endif %}
-              </td>
-              <td>{{ e.notes or '' }}</td>
-              <td class="actions-cell">
-  <a href="{{ url_for('edit_entry', id=e.id) }}" class="edit-btn">Edit</a>
-  <form action="{{ url_for('delete_entry', id=e.id) }}"
-        method="post" class="delete-form">
-    <button class="delete-btn" type="submit">Delete</button>
-  </form>
-</td>
-            </tr>
+  <!-- Main Content -->
+  <div class="main-content">
+    <div class="dashboard-card">
+      <!-- Header -->
+      <div class="dashboard-header">
+        {% if selected_folder_id is not none %}
+          {% if selected_folder_id == 0 %}
+            Unorganized Entries
+          {% else %}
+            {% for folder in folders if folder.id == selected_folder_id %}
+              {{ folder.name }}
             {% endfor %}
-          </tbody>
-        </table>
-      {% else %}
-        <p style="text-align:center; padding:1rem;">
-          No entries yet.
-        </p>
-      {% endif %}
-    </div>
+          {% endif %}
+        {% else %}
+          All Password Entries
+        {% endif %}
+        <span style="font-size: 1rem; font-weight: normal; float: right;">
+          {{ entries|length }} entries
+        </span>
+      </div>
 
-    <!-- Footer Actions (Add Entry centered) -->
-    <div class="actions">
-      <a href="{{ url_for('add_entry') }}">+ Add Entry</a>
+      <!-- Scrollable Entries -->
+      <div class="scrollable-entries">
+        {% if entries %}
+          <table class="entry-table">
+            <thead>
+              <tr>
+                <th>Title</th>
+                <th>Username</th>
+                <th>Password</th>
+                <th>URL</th>
+                <th>Folder</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for e in entries %}
+              <tr>
+                <td>{{ e.title }}</td>
+                <td>{{ e.username }}</td>
+                <td>
+                  <span class="masked" style="font-family:monospace; cursor:pointer;">••••••••</span>
+                  <span class="real-password" style="display:none; font-family:monospace; cursor:pointer;">{{ e.password }}</span>
+                </td>
+                <td>
+                  {% if e.url %}
+                    <a href="{{ e.url }}" target="_blank" rel="noopener">{{ e.url[:30] }}{% if e.url|length > 30 %}...{% endif %}</a>
+                  {% endif %}
+                </td>
+                <td>
+                  {% if e.folder_name %}
+                    <span class="folder-tag" style="--folder-color: {{ e.folder_color }}">
+                      {{ e.folder_name }}
+                    </span>
+                  {% else %}
+                    <span style="color: #64748b; font-style: italic;">None</span>
+                  {% endif %}
+                </td>
+                <td class="actions-cell">
+                  <a href="{{ url_for('edit_entry', id=e.id) }}" class="edit-btn">Edit</a>
+
+                  <button class="copy-btn" type="button"
+                          data-password="{{ e.password }}"
+                          onclick="copyPassword(this)">
+                    Copy
+                  </button>
+
+                  <form action="{{ url_for('delete_entry', id=e.id) }}"
+                        method="post" class="delete-form" style="display: inline;">
+                    <button class="delete-btn" type="submit" 
+                            onclick="return confirm('Are you sure you want to delete this entry?')">
+                      Delete
+                    </button>
+                  </form>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        {% else %}
+          <div style="text-align:center; padding:3rem;">
+            {% if selected_folder_id is not none %}
+              <p style="font-size: 1.2rem; margin-bottom: 1rem;">No entries in this folder.</p>
+            {% else %}
+              <p style="font-size: 1.2rem; margin-bottom: 1rem;">No password entries yet.</p>
+            {% endif %}
+            <p style="color: #94a3b8;">Click "Add Entry" below to store a password.</p>
+          </div>
+        {% endif %}
+      </div>
+
+      <!-- Footer Actions -->
+      <div class="actions">
+        <a href="{{ url_for('add_entry') }}">+ Add Entry</a>
+      </div>
     </div>
   </div>
 </div>
+
+<script>
+// Toggle password visibility
+document.addEventListener('click', e => {
+  if (e.target.classList.contains('masked') || e.target.classList.contains('real-password')) {
+    const td = e.target.closest('td');
+    const masked = td.querySelector('.masked');
+    const real = td.querySelector('.real-password');
+
+    if (masked && real) {
+      const isMaskedVisible = masked.style.display !== 'none';
+      masked.style.display = isMaskedVisible ? 'none' : 'inline';
+      real.style.display = isMaskedVisible ? 'inline' : 'none';
+    }
+  }
+});
+
+// Copy password to clipboard
+function copyPassword(button) {
+  const password = button.getAttribute('data-password');
+  if (!password) return;
+
+  navigator.clipboard.writeText(password).then(() => {
+    const originalText = button.textContent;
+    button.textContent = '✓ Copied!';
+    button.style.background = '#10b981';
+    button.style.color = '#fff';
+    
+    setTimeout(() => {
+      button.textContent = originalText;
+      button.style.background = '';
+      button.style.color = '';
+    }, 2000);
+  }).catch(err => {
+    console.error('Copy failed', err);
+    button.textContent = '✗ Error';
+    setTimeout(() => {
+      button.textContent = 'Copy';
+    }, 2000);
+  });
+}
+
+// Create new folder
+function createFolder() {
+  const name = prompt('Enter folder name:');
+  if (name && name.trim()) {
+    // You'll need to add this route to app.py
+    fetch('/create-folder', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ name: name.trim() })
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        window.location.reload();
+      } else {
+        alert(data.message || 'Failed to create folder');
+      }
+    });
+  }
+}
+
+// Auto-hide flash messages after 5 seconds
+document.addEventListener('DOMContentLoaded', () => {
+  const flashes = document.querySelectorAll('.flash');
+  flashes.forEach(flash => {
+    setTimeout(() => {
+      flash.style.transition = 'opacity 0.5s';
+      flash.style.opacity = '0';
+      setTimeout(() => flash.remove(), 500);
+    }, 5000);
+  });
+});
+</script>
 {% endblock %}
